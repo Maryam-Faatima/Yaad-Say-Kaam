@@ -86,30 +86,41 @@ init_session_state()
 
 # API Key Check
 api_key = os.getenv("OPENAI_API_KEY")
+groq_key = os.getenv("GROQ_API_KEY")
 
 # Check st.secrets as fallback if running on Streamlit Cloud
-if not api_key:
-    try:
-        api_key = st.secrets.get("OPENAI_API_KEY")
-        if api_key:
-            os.environ["OPENAI_API_KEY"] = api_key
-    except Exception:
-        pass
-
-if not api_key:
-    st.sidebar.error("🔑 API Key Required")
-    api_key = st.sidebar.text_input("Enter your OpenAI API Key:", type="password")
+try:
     if not api_key:
-        st.warning("Please enter your OpenAI API Key in the sidebar to unlock the app.")
+        api_key = st.secrets.get("OPENAI_API_KEY")
+    if not groq_key:
+        groq_key = st.secrets.get("GROQ_API_KEY")
+except Exception:
+    pass
+
+if not api_key or not groq_key:
+    st.sidebar.error("🔑 API Keys Required")
+    if not api_key:
+        api_key = st.sidebar.text_input("Enter your OpenAI API Key:", type="password")
+        if api_key: os.environ["OPENAI_API_KEY"] = api_key
+    if not groq_key:
+        groq_key = st.sidebar.text_input("Enter your Groq API Key:", type="password")
+        if groq_key: os.environ["GROQ_API_KEY"] = groq_key
+        
+    if not api_key or not groq_key:
+        st.warning("Please enter your API Keys in the sidebar to unlock the app.")
         st.stop()
-    else:
-        os.environ["OPENAI_API_KEY"] = api_key
+else:
+    os.environ["OPENAI_API_KEY"] = api_key
+    os.environ["GROQ_API_KEY"] = groq_key
 
 st.sidebar.markdown("<h2 style='text-align: center; color: #ff3333 !important;'>🐞 LadyBugs Control Center</h2>", unsafe_allow_html=True)
 st.sidebar.markdown("---")
 
-if not GMAIL_AVAILABLE:
-    st.sidebar.warning("Gmail fetcher not available. Install google-api-python-client and google-auth-oauthlib, and place credentials.json in the project root.")
+creds_path = os.path.join(os.path.dirname(__file__), '..', 'credentials.json')
+has_creds = os.path.exists(creds_path)
+
+if not GMAIL_AVAILABLE or not has_creds:
+    st.sidebar.warning("☁️ Cloud Mode Active: Gmail auto-fetching is disabled because it requires a local browser for Google Login.")
     input_source = st.sidebar.radio("🎯 Select Input Mode", ["Manual Input"])
 else:
     input_source = st.sidebar.radio("🎯 Select Input Mode", ["Manual Input", "Fetch from Gmail"], index=0)
