@@ -85,9 +85,25 @@ def init_session_state():
 init_session_state()
 
 # API Key Check
-if not os.getenv("OPENAI_API_KEY"):
-    st.error("OPENAI_API_KEY is missing. Please set it in your .env file.")
-    st.stop()
+api_key = os.getenv("OPENAI_API_KEY")
+
+# Check st.secrets as fallback if running on Streamlit Cloud
+if not api_key:
+    try:
+        api_key = st.secrets.get("OPENAI_API_KEY")
+        if api_key:
+            os.environ["OPENAI_API_KEY"] = api_key
+    except Exception:
+        pass
+
+if not api_key:
+    st.sidebar.error("🔑 API Key Required")
+    api_key = st.sidebar.text_input("Enter your OpenAI API Key:", type="password")
+    if not api_key:
+        st.warning("Please enter your OpenAI API Key in the sidebar to unlock the app.")
+        st.stop()
+    else:
+        os.environ["OPENAI_API_KEY"] = api_key
 
 st.sidebar.markdown("<h2 style='text-align: center; color: #ff3333 !important;'>🐞 LadyBugs Control Center</h2>", unsafe_allow_html=True)
 st.sidebar.markdown("---")
