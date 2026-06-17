@@ -1,0 +1,19 @@
+# Environments
+.env
+.venv
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# API Credentials
+credentials.json
+token.pickle
+
+# Data
+data/tasks.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class

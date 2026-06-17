@@ -1,0 +1,10 @@
+crewai
+openai
+groq
+python-dotenv
+streamlit
+streamlit-autorefresh
+
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
