@@ -3,10 +3,8 @@ import json
 from datetime import datetime
 from dotenv import load_dotenv
 
-# 1. Load OPENAI_API_KEY from .env
+# 1. Load variables from .env
 load_dotenv()
-if not os.getenv("OPENAI_API_KEY"):
-    raise EnvironmentError("ERROR: OPENAI_API_KEY missing from environment variables.")
 
 # 2. Import agent functions
 from agents.data_sentinel import process_message
