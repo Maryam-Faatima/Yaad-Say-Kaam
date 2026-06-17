@@ -117,10 +117,25 @@ st.sidebar.markdown("<h2 style='text-align: center; color: #ff3333 !important;'>
 st.sidebar.markdown("---")
 
 creds_path = os.path.join(os.path.dirname(__file__), '..', 'credentials.json')
-has_creds = os.path.exists(creds_path)
+token_path = os.path.join(os.path.dirname(__file__), '..', 'token.pickle')
 
-if not GMAIL_AVAILABLE or not has_creds:
-    st.sidebar.warning("☁️ Cloud Mode Active: Gmail auto-fetching is disabled because it requires a local browser for Google Login.")
+has_creds = os.path.exists(creds_path)
+has_token = os.path.exists(token_path)
+
+if not GMAIL_AVAILABLE or not (has_creds and has_token):
+    st.sidebar.warning("☁️ Cloud Mode: Gmail Fetcher is paused. Streamlit Cloud requires your local Google auth files.")
+    
+    cred_file = st.sidebar.file_uploader("Upload credentials.json", type=['json'])
+    token_file = st.sidebar.file_uploader("Upload token.pickle", type=['pickle', 'pkl', ''])
+    
+    if cred_file and token_file:
+        with open(creds_path, 'wb') as f:
+            f.write(cred_file.getbuffer())
+        with open(token_path, 'wb') as f:
+            f.write(token_file.getbuffer())
+        st.sidebar.success("✅ Auth files loaded! Refreshing...")
+        st.rerun()
+
     input_source = st.sidebar.radio("🎯 Select Input Mode", ["Manual Input"])
 else:
     input_source = st.sidebar.radio("🎯 Select Input Mode", ["Manual Input", "Fetch from Gmail"], index=0)
